@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\src\Models\DTO.csproj" />
+    <ProjectReference Include="..\src\Api\Api.csproj" />
   </ItemGroup>
 
 </Project>
