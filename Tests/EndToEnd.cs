@@ -51,7 +51,7 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
         );
         Assert.NotNull(feedbackList);
 
-        var retrievedFeedback = feedbackList.FindAll(feedback => feedback.Comment == userFeedback.Comment);
+        var retrievedFeedback = feedbackList.FindAll(feedback => feedback.Id == userFeedback.Id);
 
         // Assert
         Assert.NotNull(retrievedFeedback);
