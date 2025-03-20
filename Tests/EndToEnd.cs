@@ -43,6 +43,9 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
         var getResponse = await httpClient.GetAsync(endpointPath, cts.Token);
         getResponse.EnsureSuccessStatusCode();
 
+        var responseContent = await getResponse.Content.ReadAsStringAsync();
+        var feedbackList = JsonSerializer.Deserialize<List<Feedback>>(responseContent);
+
         // Assert
         Assert.Equivalent(postResponse.Content, getResponse.Content);
     }
