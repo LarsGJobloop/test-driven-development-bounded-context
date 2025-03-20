@@ -7,7 +7,7 @@ namespace Tests;
 
 public class FeedbackServiceE2E(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
 {
-    readonly HttpClient _httpClient = factory.CreateClient();
+    HttpClient _httpClient = factory.CreateClient();
 
     // One of the simpler methods to provide more than a single test data set to theories
     // Depending on requirements these can become more or less complex.
@@ -39,6 +39,29 @@ public class FeedbackServiceE2E(WebApplicationFactory<Program> factory) : IClass
         Assert.NotNull(retrievedFeedback);
         Assert.Single(retrievedFeedback);
         Assert.Equivalent(userFeedbackRequest, retrievedFeedback[0]);
+    }
+
+    [Theory]
+    [MemberData(nameof(TestData))]
+    public async Task FeedbackShouldPersistAcrossRestarts(FeedbackCreateRequest userFeedbackRequest)
+    {
+        // Arrange
+        var endpointPath = "/feedback";
+        var timeout = TimeSpan.FromSeconds(1);
+        using var cts = new CancellationTokenSource(timeout);
+
+        // Act
+        var successResponse = await PostJson<FeedbackCreateRequest, CreatedResponse>(endpointPath, userFeedbackRequest, cts.Token);
+
+        // Simulate Restart
+        _httpClient = new WebApplicationFactory<Program>().CreateClient();
+
+        var feedbackList = await GetJson<List<Feedback>>(endpointPath, cts.Token);
+        var retrievedFeedback = feedbackList.Find(feedback => feedback.Id == successResponse.Id);
+
+        // Assert
+        Assert.NotNull(retrievedFeedback);
+        Assert.Equivalent(userFeedbackRequest, retrievedFeedback);
     }
 
     // Some logic is common and not something that is neccessary to be aware of when describing tests/theories ^
