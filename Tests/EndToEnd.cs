@@ -14,7 +14,7 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
         _factory = factory;
     }
 
-    public static TheoryData<Feedback> TestData =>
+    public static TheoryData<FeedbackCreateRequest> TestData =>
         [
             new() {Comment = "This product is Great!", ProductRef = 0, Rating = 5},
             new() {Comment = "Mehe", ProductRef = 10, Rating = 3},
@@ -23,12 +23,12 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
 
     [Theory]
     [MemberData(nameof(TestData))]
-    public async Task PostedFeedbackShouldBeRetrievable(Feedback userFeedback)
+    public async Task PostedFeedbackShouldBeRetrievable(FeedbackCreateRequest userFeedbackRequest)
     {
         // Arrange
         var endpointPath = "/feedback";
         var requestContent = new StringContent(
-            JsonSerializer.Serialize(userFeedback),
+            JsonSerializer.Serialize(userFeedbackRequest),
             Encoding.UTF8,
             "application/json"
         );
@@ -51,11 +51,11 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
         );
         Assert.NotNull(feedbackList);
 
-        var retrievedFeedback = feedbackList.FindAll(feedback => feedback.Id == userFeedback.Id);
+        var retrievedFeedback = feedbackList.FindAll(feedback => feedback.Id == userFeedbackRequest.Id);
 
         // Assert
         Assert.NotNull(retrievedFeedback);
         Assert.Single(retrievedFeedback);
-        Assert.Equivalent(userFeedback, retrievedFeedback[0]);
+        Assert.Equivalent(userFeedbackRequest, retrievedFeedback[0]);
     }
 }
