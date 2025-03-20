@@ -18,6 +18,7 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
     public async Task PostedFeedbackShouldBeRetrievable()
     {
         // Arrange
+        var endpointPath = "/feedback";
         var userFeedback = new Feedback
         {
             ProductRef = 0,
@@ -37,9 +38,9 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
         using var cts = new CancellationTokenSource(timeout);
 
         // Act
-        var postResponse = await httpClient.PostAsync("/feeedback", requestContent, cts.Token);
+        var postResponse = await httpClient.PostAsync(endpointPath, requestContent, cts.Token);
         postResponse.EnsureSuccessStatusCode(); // If we can't post feedback it does not work
-        var getResponse = await httpClient.GetAsync("/feedback", cts.Token);
+        var getResponse = await httpClient.GetAsync(endpointPath, cts.Token);
 
         // Assert
         Assert.Equivalent(postResponse.Content, getResponse.Content);
