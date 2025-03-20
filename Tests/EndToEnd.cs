@@ -32,9 +32,13 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
 
         var httpClient = _factory.CreateClient();
 
+        // A server which never responds is no good
+        var timeout = TimeSpan.FromSeconds(1);
+        using var cts = new CancellationTokenSource(timeout);
+
         // Act
-        var postResponse = await httpClient.PostAsync("/feeedback", requestContent);
-        var getResponse = await httpClient.GetAsync("/feedback");
+        var postResponse = await httpClient.PostAsync("/feeedback", requestContent, cts.Token);
+        var getResponse = await httpClient.GetAsync("/feedback", cts.Token);
 
         // Assert
         Assert.Equivalent(postResponse.Content, getResponse.Content);
