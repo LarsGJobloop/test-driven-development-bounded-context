@@ -1,18 +1,13 @@
 ﻿using DTO;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
 using System.Text;
 using System.Text.Json;
 
 namespace Tests;
 
-public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
+public class FeedbackServiceE2E(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
 {
-    readonly HttpClient _httpClient;
-    public FeedbackServiceE2E(WebApplicationFactory<Program> factory)
-    {
-        _httpClient = factory.CreateClient();
-    }
+    readonly HttpClient _httpClient = factory.CreateClient();
 
     public static TheoryData<FeedbackCreateRequest> TestData =>
         [
@@ -27,40 +22,54 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
     {
         // Arrange
         var endpointPath = "/feedback";
-        var requestContent = new StringContent(
-            JsonSerializer.Serialize(userFeedbackRequest),
-            Encoding.UTF8,
-            "application/json"
-        );
 
         var timeout = TimeSpan.FromSeconds(1);
         using var cts = new CancellationTokenSource(timeout);
 
         // Act
-        var postResponse = await _httpClient.PostAsync(endpointPath, requestContent, cts.Token);
-        postResponse.EnsureSuccessStatusCode();
-        var postResponseContent = await postResponse.Content.ReadAsStringAsync();
-        var successResponse = JsonSerializer.Deserialize<CreatedResponse>(
-            postResponseContent,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-        );
-        Assert.NotNull(successResponse);
-
-        var getResponse = await _httpClient.GetAsync(endpointPath, cts.Token);
-        getResponse.EnsureSuccessStatusCode();
-
-        var responseContent = await getResponse.Content.ReadAsStringAsync();
-        var feedbackList = JsonSerializer.Deserialize<List<Feedback>>(
-            responseContent,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-        );
-        Assert.NotNull(feedbackList);
-
+        var successResponse = await PostJson<FeedbackCreateRequest, CreatedResponse>(endpointPath, userFeedbackRequest, cts.Token);
+        var feedbackList = await GetJson<List<Feedback>>(endpointPath, cts.Token);
         var retrievedFeedback = feedbackList.FindAll(feedback => feedback.Id == successResponse.Id);
 
         // Assert
         Assert.NotNull(retrievedFeedback);
         Assert.Single(retrievedFeedback);
         Assert.Equivalent(userFeedbackRequest, retrievedFeedback[0]);
+    }
+
+    private async Task<SuccessType> PostJson<PostType, SuccessType>(string endpointPath, PostType jsonObject, CancellationToken token)
+    {
+        var jsonString = new StringContent(
+            JsonSerializer.Serialize(jsonObject),
+            Encoding.UTF8,
+            "application/json"
+        );
+
+        var response = await _httpClient.PostAsync(endpointPath, jsonString, token);
+        response.EnsureSuccessStatusCode();
+        var responseContent = await response.Content.ReadAsStringAsync(token);
+        var deserialized = JsonSerializer.Deserialize<SuccessType>(
+            responseContent,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+        );
+
+        Assert.NotNull(deserialized);
+
+        return deserialized;
+    }
+
+    private async Task<ReturnType> GetJson<ReturnType>(string endpointPath, CancellationToken token)
+    {
+        var getResponse = await _httpClient.GetAsync(endpointPath, token);
+        getResponse.EnsureSuccessStatusCode();
+
+        var responseContent = await getResponse.Content.ReadAsStringAsync(token);
+        var feedbackList = JsonSerializer.Deserialize<ReturnType>(
+            responseContent,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+        );
+        Assert.NotNull(feedbackList);
+
+        return feedbackList;
     }
 }
