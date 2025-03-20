@@ -41,6 +41,7 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
         var postResponse = await httpClient.PostAsync(endpointPath, requestContent, cts.Token);
         postResponse.EnsureSuccessStatusCode(); // If we can't post feedback it does not work
         var getResponse = await httpClient.GetAsync(endpointPath, cts.Token);
+        getResponse.EnsureSuccessStatusCode();
 
         // Assert
         Assert.Equivalent(postResponse.Content, getResponse.Content);
