@@ -14,17 +14,18 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
         _factory = factory;
     }
 
-    [Fact]
-    public async Task PostedFeedbackShouldBeRetrievable()
+    public static TheoryData<Feedback> TestData =>
+        [
+            new() {Comment = "This product is Great!", ProductRef = 0, Rating = 5},
+            new() {Comment = "Mehe", ProductRef = 10, Rating = 3},
+        ];
+
+    [Theory]
+    [MemberData(nameof(TestData))]
+    public async Task PostedFeedbackShouldBeRetrievable(Feedback userFeedback)
     {
         // Arrange
         var endpointPath = "/feedback";
-        var userFeedback = new Feedback
-        {
-            ProductRef = 0,
-            Comment = "This product is Great!",
-            Rating = 5,
-        };
         var requestContent = new StringContent(
             JsonSerializer.Serialize(userFeedback),
             Encoding.UTF8,
