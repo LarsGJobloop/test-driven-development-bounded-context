@@ -41,6 +41,13 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
         // Act
         var postResponse = await httpClient.PostAsync(endpointPath, requestContent, cts.Token);
         postResponse.EnsureSuccessStatusCode();
+        var postResponseContent = await postResponse.Content.ReadAsStringAsync();
+        var successResponse = JsonSerializer.Deserialize<Feedback>(
+            postResponseContent,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+        );
+        Assert.NotNull(successResponse);
+
         var getResponse = await httpClient.GetAsync(endpointPath, cts.Token);
         getResponse.EnsureSuccessStatusCode();
 
@@ -51,7 +58,7 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
         );
         Assert.NotNull(feedbackList);
 
-        var retrievedFeedback = feedbackList.FindAll(feedback => feedback.Id == userFeedbackRequest.Id);
+        var retrievedFeedback = feedbackList.FindAll(feedback => feedback.Id == successResponse.Id);
 
         // Assert
         Assert.NotNull(retrievedFeedback);
