@@ -10,9 +10,17 @@ app.MapGet("/feedback", () =>
   return feedbackList;
 });
 
-app.MapPost("/feedback", (Feedback userFeedback) =>
+app.MapPost("/feedback", (FeedbackCreateRequest userFeedbackRequest) =>
 {
-  feedbackList.Add(userFeedback);
+  var newFeedback = new Feedback
+  {
+    Comment = userFeedbackRequest.Comment,
+    ProductRef = userFeedbackRequest.ProductRef,
+    Rating = userFeedbackRequest.Rating,
+  };
+  feedbackList.Add(newFeedback);
+
+  return Results.Ok(new CreatedResponse { Id = newFeedback.Id });
 });
 
 app.Run();

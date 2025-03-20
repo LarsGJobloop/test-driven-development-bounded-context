@@ -42,7 +42,7 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
         var postResponse = await httpClient.PostAsync(endpointPath, requestContent, cts.Token);
         postResponse.EnsureSuccessStatusCode();
         var postResponseContent = await postResponse.Content.ReadAsStringAsync();
-        var successResponse = JsonSerializer.Deserialize<Feedback>(
+        var successResponse = JsonSerializer.Deserialize<CreatedResponse>(
             postResponseContent,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
         );
@@ -52,7 +52,7 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
         getResponse.EnsureSuccessStatusCode();
 
         var responseContent = await getResponse.Content.ReadAsStringAsync();
-        var feedbackList = JsonSerializer.Deserialize<List<Feedback>>(
+        var feedbackList = JsonSerializer.Deserialize<List<FeedbackExternal>>(
             responseContent,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
         );
