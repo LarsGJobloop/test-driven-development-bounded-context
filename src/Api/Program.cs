@@ -1,18 +1,16 @@
-using DTO;
-
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-List<Feedback> feedbackList = [];
+List<Models.Feedback> feedbackList = [];
 
 app.MapGet("/feedback", () =>
 {
   return feedbackList;
 });
 
-app.MapPost("/feedback", (FeedbackCreateRequest userFeedbackRequest) =>
+app.MapPost("/feedback", (DTO.FeedbackCreateRequest userFeedbackRequest) =>
 {
-  var newFeedback = new Feedback
+  var newFeedback = new Models.Feedback
   {
     Comment = userFeedbackRequest.Comment,
     ProductRef = userFeedbackRequest.ProductRef,
@@ -20,7 +18,7 @@ app.MapPost("/feedback", (FeedbackCreateRequest userFeedbackRequest) =>
   };
   feedbackList.Add(newFeedback);
 
-  return Results.Ok(new CreatedResponse { Id = newFeedback.Id });
+  return Results.Ok(new DTO.CreatedResponse { Id = newFeedback.Id });
 });
 
 app.Run();

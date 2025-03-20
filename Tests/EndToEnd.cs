@@ -52,7 +52,7 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
         getResponse.EnsureSuccessStatusCode();
 
         var responseContent = await getResponse.Content.ReadAsStringAsync();
-        var feedbackList = JsonSerializer.Deserialize<List<FeedbackExternal>>(
+        var feedbackList = JsonSerializer.Deserialize<List<Feedback>>(
             responseContent,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
         );
