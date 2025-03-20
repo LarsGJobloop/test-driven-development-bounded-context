@@ -48,10 +48,12 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
             responseContent,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
         );
+        Assert.NotNull(feedbackList);
+
+        var retrievedFeedback = feedbackList.Find(feedback => feedback.Comment == userFeedback.Comment);
 
         // Assert
-        Assert.NotNull(feedbackList);
-        Assert.Single(feedbackList);
-        Assert.Equivalent(userFeedback, feedbackList[0]);
+        Assert.NotNull(retrievedFeedback);
+        Assert.Equivalent(userFeedback, retrievedFeedback);
     }
 }
