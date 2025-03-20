@@ -18,6 +18,7 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
         [
             new() {Comment = "This product is Great!", ProductRef = 0, Rating = 5},
             new() {Comment = "Mehe", ProductRef = 10, Rating = 3},
+            new() {Comment = "Mehe", ProductRef = 10, Rating = 3},
         ];
 
     [Theory]
