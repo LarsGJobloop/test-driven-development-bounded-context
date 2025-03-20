@@ -44,9 +44,14 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
         getResponse.EnsureSuccessStatusCode();
 
         var responseContent = await getResponse.Content.ReadAsStringAsync();
-        var feedbackList = JsonSerializer.Deserialize<List<Feedback>>(responseContent);
+        var feedbackList = JsonSerializer.Deserialize<List<Feedback>>(
+            responseContent,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+        );
 
         // Assert
-        Assert.Equivalent(postResponse.Content, getResponse.Content);
+        Assert.NotNull(feedbackList);
+        Assert.Single(feedbackList);
+        Assert.Equivalent(userFeedback, feedbackList[0]);
     }
 }

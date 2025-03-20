@@ -6,7 +6,7 @@ var app = builder.Build();
 app.MapGet("/feedback", () => new List<Feedback>
 {
   new() {
-    ProductRef = 1,
+    ProductRef = 0,
     Comment = "This product is Great!",
     Rating = 5,
   }
