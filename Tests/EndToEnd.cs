@@ -8,10 +8,10 @@ namespace Tests;
 
 public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
 {
-    readonly WebApplicationFactory<Program> _factory;
+    readonly HttpClient _httpClient;
     public FeedbackServiceE2E(WebApplicationFactory<Program> factory)
     {
-        _factory = factory;
+        _httpClient = factory.CreateClient();
     }
 
     public static TheoryData<FeedbackCreateRequest> TestData =>
@@ -33,13 +33,11 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
             "application/json"
         );
 
-        var httpClient = _factory.CreateClient();
-
         var timeout = TimeSpan.FromSeconds(1);
         using var cts = new CancellationTokenSource(timeout);
 
         // Act
-        var postResponse = await httpClient.PostAsync(endpointPath, requestContent, cts.Token);
+        var postResponse = await _httpClient.PostAsync(endpointPath, requestContent, cts.Token);
         postResponse.EnsureSuccessStatusCode();
         var postResponseContent = await postResponse.Content.ReadAsStringAsync();
         var successResponse = JsonSerializer.Deserialize<CreatedResponse>(
@@ -48,7 +46,7 @@ public class FeedbackServiceE2E : IClassFixture<WebApplicationFactory<Program>>
         );
         Assert.NotNull(successResponse);
 
-        var getResponse = await httpClient.GetAsync(endpointPath, cts.Token);
+        var getResponse = await _httpClient.GetAsync(endpointPath, cts.Token);
         getResponse.EnsureSuccessStatusCode();
 
         var responseContent = await getResponse.Content.ReadAsStringAsync();
