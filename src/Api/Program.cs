@@ -3,16 +3,17 @@ using DTO;
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-app.MapGet("/feedback", () => new List<Feedback>
+List<Feedback> feedbackList = [];
+
+app.MapGet("/feedback", () =>
 {
-  new() {
-    ProductRef = 0,
-    Comment = "This product is Great!",
-    Rating = 5,
-  }
+  return feedbackList;
 });
 
-app.MapPost("/feedback", () => "Feedback Recieved!");
+app.MapPost("/feedback", (Feedback userFeedback) =>
+{
+  feedbackList.Add(userFeedback);
+});
 
 app.Run();
 
